@@ -6,7 +6,9 @@ import sympy as sp
 from scipy.interpolate import RegularGridInterpolator
 from scipy.integrate import quad, dblquad
 import plotly.graph_objects as go
+import plotly.io as pio
 
+pio.renderers.default = 'browser'
 #curve path of current:
 R = 0.0175 # the radius of the curve itself (not the distance for each vector) in m
 mu0 = 4 * np.pi * 1e-7
