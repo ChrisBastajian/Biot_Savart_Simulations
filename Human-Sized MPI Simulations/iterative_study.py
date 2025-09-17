@@ -12,7 +12,7 @@ pio.renderers.default = 'browser'
 R = 10 * 1e-2 # the radius of the coil, assuming 90th percentile to be no bigger than 20 (overestimation)
 mu0 = 4 * np.pi * 1e-7
 I = 10 #current intensity in A
-h = 20 * 1e-2 #~20cm, assuming 90th percentile to be no bigger than 18 (overestimation
+h = 20 * 1e-2 #~20cm, assuming 90th percentile to be no bigger than 18 (overestimation)
 
 #finding thickness of litz wire:
 data_points_coil = 100000
