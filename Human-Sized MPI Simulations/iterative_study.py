@@ -17,10 +17,10 @@ h = 20 * 1e-2 #~20cm, assuming 90th percentile to be no bigger than 18 (overesti
 #finding thickness of litz wire:
 data_points_coil = 100000
 num_layers = 4 #4 layers of coils
-coil_thickness = 3 * 1e-3
+wire_thickness = 3 * 1e-3
 
 #getting number of turns:
-num_turns_per_layer = h/coil_thickness
+num_turns_per_layer = h/wire_thickness
 num_turns = num_turns_per_layer * num_layers
 print(f"Number of turns: {num_turns}")
 
@@ -160,5 +160,5 @@ fig3.update_layout(scene=dict(
     xaxis_title='Inductance of the coil (mH)',
     yaxis_title='Number of Turns',
     zaxis_title='Magnetic Field at the Center (mT)'
-), title='Magnetic Field vs Current vs Turns')
+), title='Magnetic Field vs Inductance vs Turns')
 fig3.show()
