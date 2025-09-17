@@ -5,6 +5,7 @@ from scipy.interpolate import RegularGridInterpolator
 from scipy.integrate import quad, dblquad
 import plotly.graph_objects as go
 import plotly.io as pio
+import scipy.optimize as optimize
 
 pio.renderers.default = 'browser'
 #curve path of current:
@@ -24,7 +25,7 @@ num_turns = num_turns_per_layer * num_layers
 print(f"Number of turns: {num_turns}")
 
 #Function that returns the integrand based on dimensions:
-def get_integrand(radius, n_turns, height):
+def get_integrand(radius, n_turns, height, I=1):
     phi, x, y, z = sp.symbols('phi,x,y,z')
 
     #recreate function of current path but in sympy to integrate:
@@ -61,7 +62,7 @@ def get_inductance(radius, n_turns, height):
     L = (np.pi * pow(n_turns,2) * pow(radius,2) * mu_o)/height
     return L
 
-integrands, dBx, dBy, dBz = get_integrand(R, num_turns, h)
+integrands, dBx, dBy, dBz = get_integrand(R, num_turns, h, I=I)
 print(dBz(2*np.pi, 1, 1,1 )) #prints the z component at the given location
 #calculate B at the center (0, 0, 0)
 B_center = B(0, 0, h/2, dBx, dBy, dBz, num_turns)
@@ -69,4 +70,95 @@ print(B_center)
 
 
 print(get_inductance(0.0175, 196, 0.07))
+
 #Start of Iterative Process:
+nl_range = [0,6] #range for layers
+irms_range = [0,30] #range for ac current
+
+dps = 20
+
+nl_values = range(nl_range[0]+1, nl_range[1]+1) #To get discrete values
+irms_values = np.linspace(irms_range[0], irms_range[1], dps)
+
+results = {
+    "irms" : [],
+    "n_turns" : [],
+    "B" : [],
+    "L": []
+}
+
+for nl in nl_values:
+    num_turns = num_turns_per_layer * nl
+    for irms in irms_values:
+        _, dBx, dBy, dBz = get_integrand(R, num_turns, h, I=irms)
+        B_vec = B(0, 0, h/2, dBx, dBy, dBz, num_turns)
+        B_mag = np.linalg.norm(B_vec) #the magnitude B_mag = sqrt(Bx^2+By^2+Bz^2)
+        B_mag *= 1e+3 #converting to mT
+
+        L = get_inductance(R, num_turns, h)
+        L *= 1e+3 #converting to mH
+
+        results["irms"].append(irms)
+        results["n_turns"].append(num_turns)
+        results["B"].append(B_mag)
+        results["L"].append(L)
+
+# Plotting Magnetic Field
+fig1 = go.Figure(data=[go.Scatter3d(
+    x=results["irms"],
+    y=results["n_turns"],
+    z= results["B"],
+    mode='markers',
+    marker=dict(
+        size=6,
+        color=results["B"],
+        colorscale='Viridis',
+        colorbar=dict(title='B (mT)'),
+    )
+)])
+fig1.update_layout(scene=dict(
+    xaxis_title='AC Current (A)',
+    yaxis_title='Number of Turns',
+    zaxis_title='Magnetic Field at Center (mT)'
+), title='Magnetic Field vs Current vs Turns')
+fig1.show()
+
+# Plotting Inductance:
+fig2 = go.Figure(data=[go.Scatter3d(
+    x=results["irms"],
+    y=results["n_turns"],
+    z= results["L"],
+    mode='markers',
+    marker=dict(
+        size=6,
+        color=results["L"],
+        colorscale='Viridis',
+        colorbar=dict(title='L (mH)'),
+    )
+)])
+fig2.update_layout(scene=dict(
+    xaxis_title='AC Current (A)',
+    yaxis_title='Number of Turns',
+    zaxis_title='Inductance of the Coil (mH)'
+), title='Inductance vs Current vs Turns')
+fig2.show()
+
+# Plotting Inductance and B_field on same plot:
+fig3 = go.Figure(data=[go.Scatter3d(
+    x=results["L"],
+    y=results["n_turns"],
+    z= results["B"],
+    mode='markers',
+    marker=dict(
+        size=6,
+        color=results["irms"],
+        colorscale='Viridis',
+        colorbar=dict(title='I_rms (A)'),
+    )
+)])
+fig3.update_layout(scene=dict(
+    xaxis_title='Inductance of the coil (mH)',
+    yaxis_title='Number of Turns',
+    zaxis_title='Magnetic Field at the Center (mT)'
+), title='Magnetic Field vs Current vs Turns')
+fig3.show()
