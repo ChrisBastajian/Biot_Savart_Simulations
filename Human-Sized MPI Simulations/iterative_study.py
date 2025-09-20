@@ -76,9 +76,9 @@ print(B_center)
 print(get_inductance(0.0175, 196, 0.07)) #validation of formula
 """
 #Start of Iterative Process:
-nl_range = [0,6] #range for layers
+nl_range = [0,4] #range for layers
 irms_range = [0,30] #range for ac current
-height_range = [18, 23]
+height_range = [7, 12]
 dps = 20
 
 nl_values = range(nl_range[0]+1, nl_range[1]+1) #To get discrete values
