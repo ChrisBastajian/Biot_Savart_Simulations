@@ -190,3 +190,10 @@ fig4.update_layout(scene=dict(
     zaxis_title='Magnetic Field at Center (mT)'
 ), title='Magnetic Field vs Height vs Turns')
 fig4.show()
+
+"""
+fig1.write_html("magnetic_field_vs_current_vs_turns.html")
+fig2.write_html("inductance_vs_height_vs_turns.html")
+fig3.write_html("magnetic_field_vs_inductance_vs_turns.html")
+fig4.write_html("magnetic_field_vs_height_vs_turns.html")
+"""
