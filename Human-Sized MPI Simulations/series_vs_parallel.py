@@ -228,8 +228,8 @@ for c in numeric_cols:
     df[c] = pd.to_numeric(df[c], errors="coerce")
 
 # Applying constraints:
-V_LIMIT = 50000.0   # V
-B_MIN = 0.0# mT
+V_LIMIT = 15000.0   # V
+B_MIN = 10.0# mT
 
 df_valid = df[(df["voltage"] <= V_LIMIT) & (df["B"] >= B_MIN)]
 
