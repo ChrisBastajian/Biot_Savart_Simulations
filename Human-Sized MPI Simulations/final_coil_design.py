@@ -225,7 +225,23 @@ fig3.update_layout(
     yaxis_title="Z-location [m]"
 )
 
+#B vs Frequency vs Height
+fig4 = px.scatter_3d(
+    df,
+    x="B", y="frequency", z="loc_z",
+    color="B",
+    color_continuous_scale="plasma",
+    title="Magnetic Field Intensity vs Frequency & Z-location (3D)"
+)
+fig4.update_traces(marker=dict(size=4))
+
 # Show figures
 fig1.show()
 fig2.show()
 fig3.show()
+fig4.show()
+
+fig1.write_html("Magnetic Field in Space at 40kHz.html")
+fig2.write_html("Voltage vs Current vs Frequency .html")
+fig3.write_html("Magnetic Field Intensity vs Frequency & Z_location (Heatmap).html")
+fig3.write_html("Magnetic Field Intensity vs Frequency & Z_location (3D).html")
