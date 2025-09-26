@@ -244,7 +244,7 @@ for c in numeric_cols:
 
 # Applying constraints:
 V_LIMIT = 1500.0   # V
-B_MIN = 10.0# mT
+B_MIN = 9.0# mT
 
 df_valid = df[(df["voltage"] <= V_LIMIT) & (df["B"] >= B_MIN)]
 
@@ -352,3 +352,9 @@ fig_inductance.update_layout(
     title="Inductance vs Frequency vs B-field (Voltage as Color, Full Info)"
 )
 fig_inductance.show()
+
+"""
+fig_freq.write_html("Frequency vs Voltage vs B-field (Full Info).html")
+fig_inductance.write_html("Height vs Number of Turns vs B-field (Voltage as Color, Full Info).html")
+fig_height.write_html("Inductance vs Frequency vs B-field (Voltage as Color, Full Info).html")
+"""
