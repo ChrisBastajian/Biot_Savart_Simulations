@@ -95,12 +95,12 @@ print(get_inductance(0.0175, 196, 0.07)) #validation of formula
 #Start of Iterative Process:
 nl_range = [0,4] #range for layers
 irms = 30
-freq_range = [30000, 40000]
+freq_range = [20000, 40000]
 height_range = [5, 11]
 dps = 30
 
 nl_values = range(nl_range[0]+1, nl_range[1]+1) #To get discrete values
-height_values = range(height_range[0], height_range[1])
+height_values = np.linspace(height_range[0], height_range[1], 7)
 freq_values = np.linspace(freq_range[0], freq_range[1], dps)
 
 results = {
@@ -243,7 +243,7 @@ for c in numeric_cols:
     df[c] = pd.to_numeric(df[c], errors="coerce")
 
 # Applying constraints:
-V_LIMIT = 15000.0   # V
+V_LIMIT = 1500.0   # V
 B_MIN = 10.0# mT
 
 df_valid = df[(df["voltage"] <= V_LIMIT) & (df["B"] >= B_MIN)]
