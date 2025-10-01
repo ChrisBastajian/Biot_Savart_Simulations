@@ -8,6 +8,7 @@ import pandas as pd
 from scipy.integrate import quad
 import plotly.graph_objects as go
 import plotly.io as pio
+import matplotlib.pyplot as plt
 import scipy.optimize as optimize
 
 pio.renderers.default = 'browser'
@@ -241,7 +242,15 @@ fig2.show()
 fig3.show()
 fig4.show()
 
+"""
 fig1.write_html("Magnetic Field in Space at 40kHz.html")
 fig2.write_html("Voltage vs Current vs Frequency .html")
 fig3.write_html("Magnetic Field Intensity vs Frequency & Z_location (Heatmap).html")
 fig3.write_html("Magnetic Field Intensity vs Frequency & Z_location (3D).html")
+"""
+
+plt.plot(df["frequency"], df["voltage"])
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Voltage [V]")
+plt.title("Voltage vs Frequency")
+plt.show()
