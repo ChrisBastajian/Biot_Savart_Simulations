@@ -18,7 +18,13 @@ Ceq_max = 2.9 * 1e-6
 print(f"Minimum Frequency: {get_tuning_frequency(Ceq_max, L)}",
       f"Maximum Frequency: {get_tuning_frequency(Ceq_min, L)}")
 
-C_vals = np.array([0.125,0.25,0.5,1,1.5,2,3]) *1e-6
-for C in C_vals:
-    f = get_tuning_frequency(C, L)
-    print(f"C = {C}, F = {f}")
+C=0.186 *1e-6
+f = get_tuning_frequency(C, L)
+print(f"C = {C}, F = {f}")
+
+def get_tuning_capacitance(f, Leq):
+    w = 2*np.pi*f
+    return 1/(pow(w,2)*L)
+
+C = get_tuning_capacitance(20000, L)
+print(f"Tuning Capacitance: {C}")
