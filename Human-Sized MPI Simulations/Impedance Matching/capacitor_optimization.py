@@ -17,8 +17,8 @@ capacitors = [c*1e-6 for c in capacitors] #converting to F
 
 stock = {c:6 for c in capacitors}  #max 6 for each capacitance value (if we order another box)
 V_rating = 300# Vrms
-target_range = (45e-9, 180e-9)  # [45,180] nF
-V_required = 2000 #Vrms
+target_range = (45e-9, 2.9e-6)  # [45n,2.9u]F
+V_required = [800, 1500, 2000] #Vrms
 
 def voltage_divider_series(C_values, V_total, freq):
     w = 2 * np.pi * freq
@@ -42,7 +42,7 @@ def get_parallel_capacitance(C_values):
     return sum(C_values)
 
 valid_solutions = []
-
+global voltages
 #Optimization loop:
 for n_series in range(2, 8):
     #Generating all combinations of capacitor values
@@ -51,7 +51,12 @@ for n_series in range(2, 8):
 
         #Computing stress voltages at chosen frequency
         freq_check = get_tuning_frequency(Ceq_series)
-        voltages = voltage_divider_series(combo, V_required, freq_check)
+        if freq_check<10000:
+            voltages = voltage_divider_series(combo, V_required[0], freq_check)
+        elif 10000<freq_check<20000:
+            voltages = voltage_divider_series(combo, V_required[1], freq_check)
+        elif freq_check>20000:
+            voltages = voltage_divider_series(combo, V_required[2], freq_check)
         if max(voltages) > V_rating:
             continue
 
