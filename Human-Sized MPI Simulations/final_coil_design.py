@@ -246,7 +246,7 @@ fig4.show()
 fig1.write_html("Magnetic Field in Space at 40kHz.html")
 fig2.write_html("Voltage vs Current vs Frequency .html")
 fig3.write_html("Magnetic Field Intensity vs Frequency & Z_location (Heatmap).html")
-fig3.write_html("Magnetic Field Intensity vs Frequency & Z_location (3D).html")
+fig4.write_html("Magnetic Field Intensity vs Frequency & Z_location (3D).html")
 """
 
 plt.plot(df["frequency"], df["voltage"])
