@@ -1,4 +1,5 @@
 import numpy as np
+import itertools
 
 L= 0.35 *1e-3 #approx. 0.35mH
 capacitors = [
@@ -9,10 +10,17 @@ capacitors = [
 
 capacitors = [c*1e-6 for c in capacitors] #converting to F
 
-stock = {c:3 for c in capacitors}  # max 3 for each capacitance value
+stock = {c:6 for c in capacitors}  #max 6 for each capacitance value (if we order another box)
 V_rating = 300# Vrms
 target_range = (45e-9, 180e-9)  # [45,180] nF
 V_required = 2000 #Vrms
+
+def voltage_divider_series(C_values, V_total, freq):
+    w = 2 * np.pi * freq
+    impedances = [1/(w*c) for c in C_values]  #Xc for each
+    Z_total = sum(impedances)
+    voltages = [V_total * (Zc/Z_total) for Zc in impedances] #voltage divider for each
+    return voltages
 
 def get_tuning_frequency(C, L=0.35*1e-3):
     #C = 1/(pow(w,2)*L)
@@ -20,59 +28,50 @@ def get_tuning_frequency(C, L=0.35*1e-3):
     f = w/(2*np.pi)
     return f
 
-def get_series_capacitance(C=None, n=1, equal=False):
-    global Ceq
-    if C is None:
-        C = []
-    if equal: #if there are many capacitors of the same value
-        Ceq = C/n
-        return Ceq
-    else:
-        for i in range(len(C)):
-            C_current = C[i]
-            if i == 0:
-                Ceq = C_current
-            else:
-                Ceq = (C_current * Ceq)/(C_current+Ceq)
-        return Ceq
-
-def get_parallel_capacitance(C1, C2, n):
-    if C1==C2:
-        Ceq = C1*n
-    else:
-        Ceq = C1+C2
+def get_series_capacitance(C_values, n=1, equal=False):
+    Ceq_inv = sum(1/c for c in C_values)
+    Ceq = 1/Ceq_inv if Ceq_inv >0 else 0
     return Ceq
+
+def get_parallel_capacitance(C_values):
+    return sum(C_values)
 
 valid_solutions = []
 
-# Loop over capacitor types
-for c in capacitors:
-    for n_series in range(2, stock[c]+1):  # need ≥7 for 2kVrms
-        # Ceq for series string
-        Ceq_series = get_series_capacitance(C=c, n=n_series, equal=True)
-        V_total = V_rating * n_series
-        if V_total < V_required:
+#Optimization loop:
+for n_series in range(2, 8):
+    #Generating all combinations of capacitor values
+    for combo in itertools.combinations_with_replacement(capacitors, n_series):
+        Ceq_series = get_series_capacitance(combo)
+
+        #Computing stress voltages at chosen frequency
+        freq_check = get_tuning_frequency(Ceq_series)
+        voltages = voltage_divider_series(combo, V_required, freq_check)
+        if max(voltages) > V_rating:
             continue
 
-        # How many such strings can we build?
-        max_strings = stock[c] // n_series
+        # Now try parallel copies
+        max_strings = min(stock[c] // combo.count(c) for c in set(combo))
         for n_parallel in range(1, max_strings+1):
             Ceq_total = get_parallel_capacitance([Ceq_series]*n_parallel)
 
             if target_range[0] <= Ceq_total <= target_range[1]:
                 f_res = get_tuning_frequency(Ceq_total)
                 valid_solutions.append({
-                    "C_single": c,
+                    "combo": combo,
                     "N_series": n_series,
                     "N_parallel": n_parallel,
                     "Ceq": Ceq_total,
-                    "V_rating_total": V_total,
-                    "f_resonance": f_res
+                    "f_resonance": f_res,
+                    "voltages": voltages
                 })
 
 valid_solutions = sorted(valid_solutions, key=lambda x: x["Ceq"]) #sorting results by Ceq
 
 for sol in valid_solutions:
-    print(f"{sol['N_parallel']} string(s) of {sol['N_series']}x {sol['C_single']*1e6:.3f} uF caps "
-          f"=> Ceq={sol['Ceq']*1e9:.1f} nF, V={sol['V_rating_total']} Vrms, "
-          f"f_res={sol['f_resonance']/1000:.1f} kHz")
+    combo_str = " + ".join(f"{c*1e6:.3f}uF" for c in sol['combo'])
+    volt_str = ", ".join(f"{v:.1f}V" for v in sol['voltages'])
+    print(f"{sol['N_parallel']}x [{combo_str}] in series "
+          f"=> Ceq={sol['Ceq']*1e9:.1f} nF, "
+          f"f_res={sol['f_resonance']/1000:.1f} kHz, "
+          f"V_caps=[{volt_str}]")
