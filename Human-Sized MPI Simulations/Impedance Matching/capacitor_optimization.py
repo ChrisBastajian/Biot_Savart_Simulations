@@ -1,3 +1,8 @@
+"""
+This code calculates variations of capacitors in series and checks which ones fit within the tuning frequency
+target range. The capacitors in stock are considered to be limited to 6 for each type (2 boxes) though this can
+be changed as needed
+"""
 import numpy as np
 import itertools
 
@@ -50,7 +55,7 @@ for n_series in range(2, 8):
         if max(voltages) > V_rating:
             continue
 
-        # Now try parallel copies
+        #Trying parallel equivalent (adding to current capacitance)
         max_strings = min(stock[c] // combo.count(c) for c in set(combo))
         for n_parallel in range(1, max_strings+1):
             Ceq_total = get_parallel_capacitance([Ceq_series]*n_parallel)
